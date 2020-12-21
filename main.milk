@@ -1,0 +1,125 @@
+#import "basic"
+#import "array"
+#import "math"
+#import "love"
+
+draw = (x, y) -> love.graphics.rectangle("fill", (x-1) * 20, (y-1) * 20, 19, 19)
+screen = { w: 64, h: 36 }
+food = { x: 25, y: 32 }
+directions = []
+segments = []
+alive = true
+score = 0
+timer = 0
+
+love.load = () {
+  love.window.setMode(screen.w * 20, screen.h * 20, { resizable: false, vsync: true })
+  love.window.setTitle("Snake in MilkScript, Made by Nimplex.")
+  love.window.setIcon(love.image.newImageData("assets/icon.png"))
+  randomize_seed(time())
+  array_add(segments, { x: screen.w / 2, y: screen.h / 2, direction: "a" })
+  array_add(segments, { x: (screen.w / 2)+1, y: screen.h / 2, direction: "a" })
+  array_add(segments, { x: (screen.w / 2)+2, y: screen.h / 2, direction: "a" })
+}
+
+love.update = (dt) {
+  if alive {
+    food_spawn = []
+    timer = timer + dt
+    if timer >= 0.2 {
+      timer = timer - 0.2
+      for direction: directions {
+        for segment: segments {
+          if direction.x == segment.x && direction.y == segment.y segment.direction = direction.dir
+        }
+      }
+      for direction: directions {
+        if direction {
+          for segment: segments {
+            if direction.x == segment.x && direction.y == segment.y {
+              if array_indexof(segments, segment) == len(segments)-1 {
+                array_remove(directions, array_indexof(directions, direction))
+              }
+            }
+          }
+        }
+      }
+      for segment: segments {
+        for segment2: segments {
+          if array_indexof(segments, segment) != array_indexof(segments, segment2) && segment.x == segment2.x && segment.y == segment2.y alive = false
+        }
+      }
+      if segments[0].x == food.x && segments[0].y == food.y {
+        lastSegment = segments[len(segments)-1]
+        if lastSegment.direction == "w" {
+          array_add(segments, { x: lastSegment.x, y: lastSegment.y+1, direction: lastSegment.direction })
+        } else if lastSegment.direction == "s" {
+          array_add(segments, { x: lastSegment.x, y: lastSegment.y-1, direction: lastSegment.direction })
+        } else if lastSegment.direction == "a" {
+          array_add(segments, { x: lastSegment.x+1, y: lastSegment.y, direction: lastSegment.direction })
+        } else if lastSegment.direction == "d" {
+          array_add(segments, { x: lastSegment.x-1, y: lastSegment.y, direction: lastSegment.direction })
+        }
+        for i: 1..64 {
+          for i2: 1..36 {
+            possible = true
+            for segment: segments {
+              if segment.y == i2 && segment.x == i possible = false
+            }
+            if possible array_add(food_spawn, { x: i, y: i2 })
+          }
+        }
+        score+=1
+        fod = food_spawn[random(0, len(food_spawn)-1)]
+        food.x = fod.x
+        food.y = fod.y
+      } 
+      for segment: segments {
+        switch segment.direction {
+          case "w" {
+            segment.y -= 1
+          }
+          case "s" {
+            segment.y += 1
+          }
+          case "a" {
+            segment.x -= 1
+          }
+          case "d" {
+            segment.x += 1
+          }
+        }
+      }
+    }
+  }
+}
+
+love.keypressed = (key) {
+  if alive {
+    if len(directions)-3 >= len(segments) return
+    if array_has(["s", "w", "d", "a"], key) {
+      if key == "w" && segments[0].y-1 == segments[1].y || 
+         key == "s" && segments[0].y+1 == segments[1].y || 
+         key == "a" && segments[0].x-1 == segments[1].x || 
+         key == "d" && segments[0].x+1 == segments[1].x return
+      array_add(directions, { x: segments[0].x, y: segments[0].y, dir: key })
+    }
+  }
+}
+
+love.draw = () {
+  if alive {
+    love.graphics.setColor(RGB(255, 255, 0))
+    draw(food.x, food.y)
+    for segment: segments {
+      love.graphics.setColor(RGB(255, 255, 255))
+      draw(segment.x, segment.y)
+    }
+    love.graphics.print("Score: "..to_string(score), love.graphics.newFont(20), (1280/2)-20, 20)
+  } else {
+    love.graphics.setColor(RGB(255, 0, 0))
+    love.graphics.print("Game over.", love.graphics.newFont(50), (1280/2)-140, (720/2)-50)
+    love.graphics.setColor(RGB(255, 255, 255))
+    love.graphics.print("Score: "..to_string(score), love.graphics.newFont(30), (1280/2)-50, 20)
+  }
+}
