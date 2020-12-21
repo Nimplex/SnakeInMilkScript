@@ -11,15 +11,15 @@ segments = []
 alive = true
 score = 0
 timer = 0
+array_add(segments, { x: screen.w / 2, y: screen.h / 2, direction: "a" })
+array_add(segments, { x: (screen.w / 2)+1, y: screen.h / 2, direction: "a" })
+array_add(segments, { x: (screen.w / 2)+2, y: screen.h / 2, direction: "a" })
 
 love.load = () {
   love.window.setMode(screen.w * 20, screen.h * 20, { resizable: false, vsync: true })
   love.window.setTitle("Snake in MilkScript, Made by Nimplex.")
   love.window.setIcon(love.image.newImageData("assets/icon.png"))
   randomize_seed(time())
-  array_add(segments, { x: screen.w / 2, y: screen.h / 2, direction: "a" })
-  array_add(segments, { x: (screen.w / 2)+1, y: screen.h / 2, direction: "a" })
-  array_add(segments, { x: (screen.w / 2)+2, y: screen.h / 2, direction: "a" })
 }
 
 love.update = (dt) {
@@ -91,6 +91,7 @@ love.update = (dt) {
         }
       }
     }
+    if segments[0].x == 0 || segments[0].x == screen.w || segments[0].y == 0 || segments[0].y == 36 alive = false
   }
 }
 
@@ -104,6 +105,16 @@ love.keypressed = (key) {
          key == "d" && segments[0].x+1 == segments[1].x return
       array_add(directions, { x: segments[0].x, y: segments[0].y, dir: key })
     }
+  } else if key == "space" {
+    food = { x: 25, y: 32 }
+    directions = []
+    segments = []
+    alive = true
+    score = 0
+    timer = 0
+    array_add(segments, { x: screen.w / 2, y: screen.h / 2, direction: "a" })
+    array_add(segments, { x: (screen.w / 2)+1, y: screen.h / 2, direction: "a" })
+    array_add(segments, { x: (screen.w / 2)+2, y: screen.h / 2, direction: "a" })
   }
 }
 
