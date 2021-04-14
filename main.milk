@@ -1,4 +1,4 @@
-#import "basic"
+#import "std"
 #import "array"
 #import "math"
 #import "love"
@@ -15,18 +15,18 @@ reset = () {
     score: 0
     timer: 0
   }
-  array_add(game.segments, { x: game.screen.w / 2, y: game.screen.h / 2, direction: "a" })
-  array_add(game.segments, { x: (game.screen.w / 2)+1, y: game.screen.h / 2, direction: "a" })
-  array_add(game.segments, { x: (game.screen.w / 2)+2, y: game.screen.h / 2, direction: "a" })
+  array.add(game.segments, { x: game.screen.w / 2, y: game.screen.h / 2, direction: "a" })
+  array.add(game.segments, { x: (game.screen.w / 2)+1, y: game.screen.h / 2, direction: "a" })
+  array.add(game.segments, { x: (game.screen.w / 2)+2, y: game.screen.h / 2, direction: "a" })
 }
 
 
 love.load = () {
   reset()
   love.window.setMode(game.screen.w * 20, game.screen.h * 20, { resizable: false, vsync: true })
-  love.window.setTitle("Snake in MilkScript, Made by Nimplex.")
+  love.window.setTitle("Snake in MilkScript, made by Nimplex.")
   love.window.setIcon(love.image.newImageData("assets/icon.png"))
-  randomize_seed(time())
+  math.randomize_seed(std.time())
 }
 
 love.update = (dt) {
@@ -44,8 +44,8 @@ love.update = (dt) {
         if direction {
           for segment: game.segments {
             if direction.x == segment.x && direction.y == segment.y {
-              if array_indexof(game.segments, segment) == len(game.segments)-1 {
-                array_remove(game.directions, array_indexof(game.directions, direction))
+              if array.indexof(game.segments, segment) == std.len(game.segments)-1 {
+                array.delete(game.directions, array.indexof(game.directions, direction))
               }
             }
           }
@@ -53,19 +53,19 @@ love.update = (dt) {
       }
       for segment: game.segments {
         for segment2: game.segments {
-          if array_indexof(game.segments, segment) != array_indexof(game.segments, segment2) && segment.x == segment2.x && segment.y == segment2.y game.alive = false
+          if array.indexof(game.segments, segment) != array.indexof(game.segments, segment2) && segment.x == segment2.x && segment.y == segment2.y game.alive = false
         }
       }
       if game.segments[0].x == game.food.x && game.segments[0].y == game.food.y {
-        lastSegment = game.segments[len(game.segments)-1]
+        lastSegment = game.segments[std.len(game.segments)-1]
         if lastSegment.direction == "w" {
-          array_add(game.segments, { x: lastSegment.x, y: lastSegment.y+1, direction: lastSegment.direction })
+          array.add(game.segments, { x: lastSegment.x, y: lastSegment.y+1, direction: lastSegment.direction })
         } else if lastSegment.direction == "s" {
-          array_add(game.segments, { x: lastSegment.x, y: lastSegment.y-1, direction: lastSegment.direction })
+          array.add(game.segments, { x: lastSegment.x, y: lastSegment.y-1, direction: lastSegment.direction })
         } else if lastSegment.direction == "a" {
-          array_add(game.segments, { x: lastSegment.x+1, y: lastSegment.y, direction: lastSegment.direction })
+          array.add(game.segments, { x: lastSegment.x+1, y: lastSegment.y, direction: lastSegment.direction })
         } else if lastSegment.direction == "d" {
-          array_add(game.segments, { x: lastSegment.x-1, y: lastSegment.y, direction: lastSegment.direction })
+          array.add(game.segments, { x: lastSegment.x-1, y: lastSegment.y, direction: lastSegment.direction })
         }
         for i: 1..64 {
           for i2: 1..36 {
@@ -73,11 +73,11 @@ love.update = (dt) {
             for segment: game.segments {
               if segment.y == i2 && segment.x == i possible = false
             }
-            if possible array_add(food_spawn, { x: i, y: i2 })
+            if possible array.add(food_spawn, { x: i, y: i2 })
           }
         }
         game.score+=1
-        fod = food_spawn[random(0, len(food_spawn)-1)]
+        fod = food_spawn[math.random(0, std.len(food_spawn)-1)]
         game.food.x = fod.x
         game.food.y = fod.y
       } 
@@ -104,16 +104,18 @@ love.update = (dt) {
 
 love.keypressed = (key) {
   if game.alive {
-    if len(game.directions)-3 >= len(game.segments) return
+    if std.len(game.directions)-3 >= std.len(game.segments) return
       if key == "w" && game.segments[0].y-1 == game.segments[1].y || 
          key == "s" && game.segments[0].y+1 == game.segments[1].y || 
          key == "a" && game.segments[0].x-1 == game.segments[1].x || 
          key == "d" && game.segments[0].x+1 == game.segments[1].x return
-      array_add(game.directions, { x: game.segments[0].x, y: game.segments[0].y, dir: key })
+      array.add(game.directions, { x: game.segments[0].x, y: game.segments[0].y, dir: key })
   } else if key == "space" {
     reset()
   }
 }
+
+RGB = (R, G, B) => R / 255, G / 255, B / 255
 
 love.draw = () {
   if game.alive {
@@ -123,11 +125,11 @@ love.draw = () {
       love.graphics.setColor(RGB(255, 255, 255))
       game.draw(segment.x, segment.y)
     }
-    love.graphics.print("Score: "..to_string(game.score), love.graphics.newFont(20), (1280/2)-20, 20)
+    love.graphics.print("Score: "..std.to_string(game.score), love.graphics.newFont(20), (1280/2)-20, 20)
   } else {
     love.graphics.setColor(RGB(255, 0, 0))
     love.graphics.print("Game over.", love.graphics.newFont(50), (1280/2)-140, (720/2)-50)
     love.graphics.setColor(RGB(255, 255, 255))
-    love.graphics.print("Score: "..to_string(game.score), love.graphics.newFont(30), (1280/2)-50, 20)
+    love.graphics.print("Score: "..std.to_string(game.score), love.graphics.newFont(30), (1280/2)-50, 20)
   }
 }
